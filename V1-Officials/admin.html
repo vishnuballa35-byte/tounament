@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | V1 OFFICIALS</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #090909;
+    color: white;
+}
+
+header {
+    background: #111;
+    padding: 20px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #292929;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    color: #ff6b00;
+    letter-spacing: 2px;
+}
+
+.logo span { color: white; }
+
+.header-links { display: flex; gap: 18px; align-items: center; }
+.header-links a { color: #ff7b18; text-decoration: none; font-size: 14px; }
+
+.btn {
+    background: #ff6b00;
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+.btn:hover { background: #e65300; }
+.btn:disabled { background: #444; cursor: not-allowed; }
+.btn.green { background: #1f9d5b; }
+.btn.green:hover { background: #188049; }
+.btn.red { background: #b32d2d; }
+.btn.red:hover { background: #962222; }
+.btn.blue { background: #2a5db0; }
+.btn.blue:hover { background: #214b92; }
+.btn.small { padding: 8px 12px; font-size: 12px; }
+
+.container { max-width: 1200px; margin: auto; padding: 35px 20px; }
+
+h1 { font-size: 30px; margin-bottom: 8px; }
+h1 span { color: #ff6b00; }
+.lead { color: #999; margin-bottom: 25px; }
+
+/* TABS */
+.tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+.tabs button {
+    background: #151515;
+    color: #bbb;
+    border: 1px solid #292929;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.tabs button.active { background: #291607; color: #ff6b00; border-color: #ff6b00; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* NOTICE */
+#notice {
+    min-height: 20px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    color: #ff8a32;
+    overflow-wrap: anywhere;
+}
+#notice.success { color: #36d982; }
+#notice.error { color: #ff5555; }
+
+/* BOXES */
+.box {
+    background: #151515;
+    border: 1px solid #292929;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 22px;
+}
+
+.box h2 { color: #ff7817; margin-bottom: 18px; font-size: 20px; }
+
+/* FORMS */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+.field { display: flex; flex-direction: column; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 13px; color: #ddd; margin-bottom: 7px; }
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: #ff6b00; }
+textarea { resize: vertical; min-height: 80px; }
+
+/* FILTERS */
+.filters { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.filters select { max-width: 280px; }
+.search-wrap { position: relative; flex: 1; min-width: 260px; max-width: 420px; }
+.search-wrap input { padding-right: 38px; }
+.search-clear {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #999; font-size: 20px; cursor: pointer; display: none;
+}
+.search-clear:hover { color: #ff6b00; }
+.result-count { color: #999; font-size: 13px; margin: -6px 0 14px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+th, td {
+    text-align: left;
+    padding: 13px 12px;
+    border-bottom: 1px solid #292929;
+    font-size: 13px;
+    vertical-align: top;
+}
+th { color: #999; font-weight: normal; }
+td .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.badge.PENDING { background: #4a3a05; color: #ffd24d; }
+.badge.APPROVED { background: #0e3d25; color: #36d982; }
+.badge.REJECTED { background: #4a1414; color: #ff6b6b; }
+
+/* TOURNAMENT CARDS */
+.t-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.t-card {
+    background: #151515;
+    border: 1px solid #292929;
+    border-radius: 10px;
+    padding: 22px;
+}
+.t-card h3 { color: #ff7b18; margin-bottom: 6px; }
+.t-meta { color: #999; font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+.t-row { display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; }
+.t-row .field { flex: 1; }
+.t-card hr { border: none; border-top: 1px solid #292929; margin: 16px 0; }
+.t-card h4 { font-size: 13px; color: #bbb; margin-bottom: 10px; }
+
+.empty { color: #888; text-align: center; padding: 30px; }
+
+/* QR LIGHTBOX */
+.qr-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+.qr-overlay.open { display: flex; }
+.qr-modal {
+    background: #151515;
+    border: 1px solid #ff6b00;
+    border-radius: 12px;
+    padding: 22px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+.qr-modal h3 { color: #ff7817; margin-bottom: 4px; }
+.qr-modal p { color: #999; font-size: 13px; margin-bottom: 14px; }
+.qr-modal img {
+    max-width: 100%;
+    max-height: 60vh;
+    background: white;
+    border-radius: 8px;
+    padding: 6px;
+}
+.qr-modal .qr-status { color: #ff8a32; font-size: 14px; padding: 30px 0; }
+.qr-modal .qr-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #292929;
+    color: #777;
+    font-size: 12px;
+}
+
+@media(max-width: 800px) {
+    .form-grid, .t-grid { grid-template-columns: 1fr; }
+    header { padding: 18px 5%; }
+    .logo { font-size: 19px; }
+}
+</style>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="css/reactor-2.css">
+</head>
+
+<body hidden>
+
+<header>
+    <div class="logo">V1 <span>OFFICIALS</span> ADMIN</div>
+    <div class="header-links">
+        <a href="dashboard.html">Player view</a>
+        <button class="btn" id="logoutBtn">LOGOUT</button>
+    </div>
+</header>
+
+<main class="container">
+
+    <h1>ADMIN <span>DASHBOARD</span></h1>
+    <p class="lead">Create tournaments, approve players and share room details.</p>
+
+    <div id="notice"></div>
+
+    <div class="tabs">
+        <button class="active" data-tab="registrations">Registrations</button>
+        <button data-tab="tournaments">Tournaments &amp; rooms</button>
+        <button data-tab="results">Results</button>
+        <button data-tab="create">Create tournament</button>
+    </div>
+
+    <!-- REGISTRATIONS -->
+    <section class="panel active" id="panel-registrations">
+        <div class="box">
+            <h2>Player registrations</h2>
+
+            <div class="filters">
+                <div class="search-wrap">
+                    <input type="search" id="searchBox" placeholder="Search by Free Fire UID, phone, name or team..." autocomplete="off">
+                    <button type="button" class="search-clear" id="searchClear" aria-label="Clear search">&times;</button>
+                </div>
+                <select id="filterTournament"></select>
+                <select id="filterStatus">
+                    <option value="">All statuses</option>
+                    <option value="PENDING" selected>Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </div>
+
+            <p class="result-count" id="resultCount"></p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+    <tr>
+        <th>Player</th>
+        <th>Phone Number</th>
+        <th>Free Fire UID</th>
+        <th>Team</th>
+        <th>Teammates</th>
+        <th>Tournament</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+</thead>
+                    <tbody id="regBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOURNAMENTS -->
+    <section class="panel" id="panel-tournaments">
+        <div class="t-grid" id="tournamentList"></div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="panel" id="panel-results">
+        <div class="box">
+            <h2>Match results</h2>
+            <div class="filters">
+                <select id="resTournament"></select>
+            </div>
+            <p class="lead" style="margin-bottom:14px;">Only approved players are listed. Enter the position and points, then save.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Player / Team</th><th>Position</th><th>Points</th></tr>
+                    </thead>
+                    <tbody id="resBody"></tbody>
+                </table>
+            </div>
+            <button class="btn" id="saveResultsBtn" style="margin-top:18px;">Save results</button>
+        </div>
+    </section>
+
+    <!-- CREATE -->
+    <section class="panel" id="panel-create">
+        <div class="box">
+            <h2>Create tournament</h2>
+
+            <form id="createForm">
+                <div class="form-grid">
+
+                    <div class="field full">
+                        <label for="cTitle">Title</label>
+                        <input id="cTitle" required maxlength="80" placeholder="Sunday Squad Showdown">
+                    </div>
+
+                    <div class="field">
+                        <label for="cMode">Game mode</label>
+                        <select id="cMode">
+                            <option value="SOLO">Solo</option>
+                            <option value="DUO">Duo</option>
+                            <option value="SQUAD">Squad</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="cStatus">Status</label>
+                        <select id="cStatus">
+                            <option value="OPEN">Open for registration</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="cFee">Entry fee (₹)</label>
+                        <input id="cFee" type="number" min="0" step="0.01" value="0" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="cPrize">Prize pool (₹)</label>
+                        <input id="cPrize" type="number" min="0" step="0.01" value="0" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="cSlots">Maximum slots</label>
+                        <input id="cSlots" type="number" min="1" step="1" value="48" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="cDate">Match date and time</label>
+                        <input id="cDate" type="datetime-local">
+                    </div>
+
+                    <div class="field full">
+                        <label for="cDesc">Description</label>
+                        <textarea id="cDesc" maxlength="500" placeholder="Rules, map, custom room settings..."></textarea>
+                    </div>
+
+                </div>
+
+                <button class="btn" type="submit" id="createBtn" style="margin-top:20px;">Create tournament</button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    © 2026 V1 OFFICIALS | All Rights Reserved.
+</footer>
+
+<!-- PLAYER PAYMENT QR VIEWER -->
+<div class="qr-overlay" id="qrOverlay" role="dialog" aria-modal="true">
+    <div class="qr-modal">
+        <h3 id="qrTitle">Payment QR</h3>
+        <p id="qrSub"></p>
+        <div id="qrContent"></div>
+        <div class="qr-buttons">
+            <a class="btn blue small" id="qrOpenLink" href="#" target="_blank" rel="noopener" style="display:none; text-decoration:none;">Open full size</a>
+            <button class="btn small" id="qrCloseBtn" type="button">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+const db = window.supabaseClient;
+
+let tournaments = [];
+let registrations = [];
+let rooms = {};
+let usernames = {};
+
+const notice = document.getElementById("notice");
+
+function showNotice(text, type = "") {
+    notice.innerText = text;
+    notice.className = type;
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function formatDate(value) {
+    if (!value) return "Date to be announced";
+    return new Date(value).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+// ---------- ACCESS CHECK ----------
+async function init() {
+
+    if (!db) {
+        document.body.hidden = false;
+        showNotice("Supabase connection failed. Check supabase.js.", "error");
+        return;
+    }
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error || !data.session) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    const { data: me } = await db
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", data.session.user.id)
+        .single();
+
+    // The database rules are the real protection.
+    // This check only keeps players from seeing an empty admin page.
+    if (!me || !me.is_admin) {
+        window.location.replace("dashboard.html");
+        return;
+    }
+
+    document.body.hidden = false;
+    await loadAll();
+}
+
+// ---------- LOAD DATA ----------
+async function loadAll() {
+
+    showNotice("Loading...");
+
+    const [t, r, p, rm] = await Promise.all([
+        db.from("tournaments").select("*").order("created_at", { ascending: false }),
+        db.from("tournament_registrations").select("*").order("created_at", { ascending: false }),
+        db.from("profiles").select("id, username"),
+        db.from("tournament_rooms").select("*")
+    ]);
+
+    const failed = [t, r, p, rm].find(x => x.error);
+
+    if (failed) {
+        showNotice("Could not load data: " + failed.error.message, "error");
+        return;
+    }
+
+    tournaments = t.data || [];
+    registrations = r.data || [];
+
+    usernames = {};
+    (p.data || []).forEach(row => { usernames[row.id] = row.username; });
+
+    rooms = {};
+    (rm.data || []).forEach(row => { rooms[row.tournament_id] = row; });
+
+    showNotice("");
+    renderFilters();
+    renderRegistrations();
+    renderTournaments();
+}
+
+// ---------- REGISTRATIONS ----------
+function renderFilters() {
+
+    const select = document.getElementById("filterTournament");
+    const current = select.value;
+
+    select.innerHTML = `<option value="">All tournaments</option>` +
+        tournaments.map(t =>
+            `<option value="${escapeHTML(t.id)}">${escapeHTML(t.title)}</option>`
+        ).join("");
+
+    select.value = current;
+}
+
+function renderRegistrations() {
+
+    const tId = document.getElementById("filterTournament").value;
+    const status = document.getElementById("filterStatus").value;
+    const body = document.getElementById("regBody");
+
+    const q = document.getElementById("searchBox").value.trim().toLowerCase();
+    const qDigits = q.replace(/[\s\-+]/g, "");
+    const count = document.getElementById("resultCount");
+
+    // While searching, the status filter is ignored so approved (paid) players still show up.
+    const rows = registrations.filter(r => {
+
+        if (tId && r.tournament_id !== tId) return false;
+        if (!q && status && r.registration_status !== status) return false;
+        if (!q) return true;
+
+        const phone = String(r.phone_number || "").replace(/[\s\-+]/g, "");
+        const uid = String(r.player_uid || "").toLowerCase();
+        const name = String(usernames[r.player_id] || "").toLowerCase();
+        const team = String(r.team_name || "").toLowerCase();
+        const mates = String(r.teammates || "").toLowerCase();
+
+        return uid.includes(q) ||
+               (qDigits !== "" && phone.includes(qDigits)) ||
+               name.includes(q) ||
+               team.includes(q) ||
+               mates.includes(q);
+    });
+
+    count.innerText = q
+        ? rows.length + " result(s) for \"" + document.getElementById("searchBox").value.trim() + "\" (all statuses)"
+        : "";
+
+    if (rows.length === 0) {
+        body.innerHTML = `<tr><td colspan="8" class="empty">${q ? "No player matches your search." : "No registrations match these filters."}</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = rows.map(r => {
+
+        const t = tournaments.find(x => x.id === r.tournament_id);
+        const st = r.registration_status;
+        return `
+
+    <tr>
+        <td>${escapeHTML(usernames[r.player_id] || "Unknown")}</td>
+        <td>${escapeHTML(r.phone_number || "Not provided")}</td>
+        <td>${escapeHTML(r.player_uid)}</td>
+        <td>${escapeHTML(r.team_name || "-")}</td>
+        <td>${escapeHTML(r.teammates || "-")}</td>
+        <td>${escapeHTML(t ? t.title : "Deleted tournament")}</td>
+        <td>
+            <span class="badge ${escapeHTML(st)}">
+                ${escapeHTML(st)}
+            </span>
+        </td>
+        <td>
+            <div class="actions">
+                ${st !== "APPROVED" ? `<button class="btn green small" data-action="approve" data-id="${escapeHTML(r.id)}">Approve</button>` : ""}
+                ${st !== "REJECTED" ? `<button class="btn red small" data-action="reject" data-id="${escapeHTML(r.id)}">Reject</button>` : ""}
+                <button class="btn blue small" data-action="qr" data-id="${escapeHTML(r.id)}">View QR</button>
+            </div>
+        </td>
+    </tr>`;
+    }).join("");
+}
+
+async function setRegistrationStatus(id, status) {
+
+    const reg = registrations.find(r => r.id === id);
+    if (!reg) return;
+
+    if (status === "APPROVED") {
+        const t = tournaments.find(x => x.id === reg.tournament_id);
+
+        const approved = registrations.filter(r =>
+            r.tournament_id === reg.tournament_id &&
+            r.registration_status === "APPROVED"
+        ).length;
+
+        if (t && approved >= t.max_slots) {
+            const go = confirm(
+                t.title + " already has " + approved + " of " +
+                t.max_slots + " slots approved. Approve anyway?"
+            );
+            if (!go) return;
+        }
+    }
+
+    const { error } = await db
+        .from("tournament_registrations")
+        .update({ registration_status: status })
+        .eq("id", id);
+
+    if (error) {
+        showNotice("Could not update registration: " + error.message, "error");
+        return;
+    }
+
+    reg.registration_status = status;
+    renderRegistrations();
+    renderTournaments();
+    showNotice("Registration " + status.toLowerCase() + ".", "success");
+}
+
+// ---------- PLAYER PAYMENT QR ----------
+const qrOverlay = document.getElementById("qrOverlay");
+const qrContent = document.getElementById("qrContent");
+const qrOpenLink = document.getElementById("qrOpenLink");
+
+async function showPlayerQr(regId) {
+
+    const reg = registrations.find(r => r.id === regId);
+    if (!reg) return;
+
+    const t = tournaments.find(x => x.id === reg.tournament_id);
+    const name = usernames[reg.player_id] || "Player";
+
+    document.getElementById("qrTitle").innerText = name + " - payment QR";
+    document.getElementById("qrSub").innerText =
+        (t ? t.title : "Tournament") + " | UID " + (reg.player_uid || "-");
+
+    qrContent.innerHTML = `<div class="qr-status">Loading QR...</div>`;
+    qrOpenLink.style.display = "none";
+    qrOverlay.classList.add("open");
+
+    // The player uploads to <player id>/<tournament id> in the private "payment-qr" bucket.
+    const { data, error } = await db.storage
+        .from("payment-qr")
+        .createSignedUrl(reg.player_id + "/" + reg.tournament_id, 300);
+
+    if (error || !data?.signedUrl) {
+        qrContent.innerHTML =
+            `<div class="qr-status">No QR uploaded by this player for this tournament.</div>`;
+        return;
+    }
+
+    qrContent.innerHTML = `<img src="${escapeHTML(data.signedUrl)}" alt="Player payment QR">`;
+    qrOpenLink.href = data.signedUrl;
+    qrOpenLink.style.display = "inline-block";
+}
+
+function closeQr() {
+    qrOverlay.classList.remove("open");
+    qrContent.innerHTML = "";
+}
+
+document.getElementById("qrCloseBtn").addEventListener("click", closeQr);
+qrOverlay.addEventListener("click", e => { if (e.target === qrOverlay) closeQr(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeQr(); });
+
+// ---------- TOURNAMENTS AND ROOMS ----------
+function renderTournaments() {
+
+    const list = document.getElementById("tournamentList");
+
+    if (tournaments.length === 0) {
+        list.innerHTML = `<div class="box empty" style="grid-column:1/-1;">No tournaments yet. Use "Create tournament" to add the first one.</div>`;
+        return;
+    }
+
+    list.innerHTML = tournaments.map(t => {
+
+        const regs = registrations.filter(r => r.tournament_id === t.id);
+        const approved = regs.filter(r => r.registration_status === "APPROVED").length;
+        const pending = regs.filter(r => r.registration_status === "PENDING").length;
+        const room = rooms[t.id] || {};
+
+        const statuses = ["OPEN", "CLOSED", "LIVE", "COMPLETED"].map(s =>
+            `<option value="${s}" ${t.status === s ? "selected" : ""}>${s}</option>`
+        ).join("");
+
+        return `
+            <article class="t-card" data-id="${escapeHTML(t.id)}">
+                <h3>${escapeHTML(t.title)}</h3>
+                <p class="t-meta">
+                    ${escapeHTML(t.game_mode)} | ₹${Number(t.entry_fee).toFixed(2)} entry |
+                    ₹${Number(t.prize_pool).toFixed(2)} prize<br>
+                    ${escapeHTML(formatDate(t.match_date))}<br>
+                    ${approved} of ${escapeHTML(t.max_slots)} slots approved, ${pending} pending
+                </p>
+
+                <div class="t-row">
+                    <div class="field">
+                        <label>Status</label>
+                        <select class="status-select">${statuses}</select>
+                    </div>
+                    <button class="btn small" data-action="save-status">Save status</button>
+                </div>
+
+                <hr>
+
+                <h4>Room details (visible only to approved players)</h4>
+
+                <div class="t-row">
+                    <div class="field">
+                        <label>Room ID</label>
+                        <input class="room-id" value="${escapeHTML(room.room_id || "")}" maxlength="40" autocomplete="off">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input class="room-pass" value="${escapeHTML(room.room_password || "")}" maxlength="40" autocomplete="off">
+                    </div>
+                </div>
+
+                <button class="btn small" data-action="save-room">Save room details</button>
+                <button class="btn red small" data-action="delete-tournament" style="margin-left:8px;">Delete tournament</button>
+            </article>`;
+    }).join("");
+}
+
+async function saveStatus(card) {
+
+    const id = card.dataset.id;
+    const status = card.querySelector(".status-select").value;
+
+    const { error } = await db
+        .from("tournaments")
+        .update({ status: status })
+        .eq("id", id);
+
+    if (error) {
+        showNotice("Could not update status: " + error.message, "error");
+        return;
+    }
+
+    const t = tournaments.find(x => x.id === id);
+    if (t) t.status = status;
+
+    showNotice("Status changed to " + status + ".", "success");
+}
+
+async function saveRoom(card) {
+
+    const id = card.dataset.id;
+    const roomId = card.querySelector(".room-id").value.trim();
+    const roomPass = card.querySelector(".room-pass").value.trim();
+
+    if (!roomId || !roomPass) {
+        showNotice("Enter both the Room ID and the password.", "error");
+        return;
+    }
+
+    const row = {
+        tournament_id: id,
+        room_id: roomId,
+        room_password: roomPass,
+        updated_at: new Date().toISOString()
+    };
+
+    const { error } = await db
+        .from("tournament_rooms")
+        .upsert(row, { onConflict: "tournament_id" });
+
+    if (error) {
+        showNotice("Could not save room details: " + error.message, "error");
+        return;
+    }
+
+    rooms[id] = row;
+    showNotice("Room details saved. Approved players can now see them.", "success");
+}
+
+async function deleteTournament(card) {
+
+    const id = card.dataset.id;
+    const t = tournaments.find(x => x.id === id);
+    if (!t) return;
+
+    const count = registrations.filter(r => r.tournament_id === id).length;
+
+    const go = confirm(
+        'Delete "' + t.title + '"?\n\n' +
+        "This also deletes its " + count + " registration(s) and room details. " +
+        "This cannot be undone."
+    );
+    if (!go) return;
+
+    const { error } = await db.from("tournaments").delete().eq("id", id);
+
+    if (error) {
+        showNotice("Could not delete tournament: " + error.message, "error");
+        return;
+    }
+
+    await loadAll();
+    showNotice('Deleted "' + t.title + '".', "success");
+}
+
+// ---------- CREATE ----------
+document.getElementById("createForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const btn = document.getElementById("createBtn");
+    const dateValue = document.getElementById("cDate").value;
+
+    const row = {
+        title: document.getElementById("cTitle").value.trim(),
+        game_mode: document.getElementById("cMode").value,
+        status: document.getElementById("cStatus").value,
+        entry_fee: Number(document.getElementById("cFee").value),
+        prize_pool: Number(document.getElementById("cPrize").value),
+        max_slots: parseInt(document.getElementById("cSlots").value, 10),
+        match_date: dateValue ? new Date(dateValue).toISOString() : null,
+        description: document.getElementById("cDesc").value.trim() || null
+    };
+
+    if (!row.title) {
+        showNotice("Enter a tournament title.", "error");
+        return;
+    }
+
+    btn.disabled = true;
+
+    const { error } = await db.from("tournaments").insert(row);
+
+    btn.disabled = false;
+
+    if (error) {
+        showNotice("Could not create tournament: " + error.message, "error");
+        return;
+    }
+
+    event.target.reset();
+    await loadAll();
+    showNotice("Tournament created.", "success");
+    switchTab("tournaments");
+});
+
+// ---------- EVENTS ----------
+function switchTab(name) {
+    if (name === "results") showResults();
+    document.querySelectorAll(".tabs button").forEach(b =>
+        b.classList.toggle("active", b.dataset.tab === name)
+    );
+    document.querySelectorAll(".panel").forEach(p =>
+        p.classList.toggle("active", p.id === "panel-" + name)
+    );
+}
+
+document.querySelector(".tabs").addEventListener("click", event => {
+    const btn = event.target.closest("button[data-tab]");
+    if (btn) switchTab(btn.dataset.tab);
+});
+
+const searchBox = document.getElementById("searchBox");
+const searchClear = document.getElementById("searchClear");
+
+searchBox.addEventListener("input", () => {
+    searchClear.style.display = searchBox.value ? "block" : "none";
+    renderRegistrations();
+});
+searchClear.addEventListener("click", () => {
+    searchBox.value = "";
+    searchClear.style.display = "none";
+    renderRegistrations();
+    searchBox.focus();
+});
+
+document.getElementById("filterTournament").addEventListener("change", renderRegistrations);
+document.getElementById("filterStatus").addEventListener("change", renderRegistrations);
+
+document.getElementById("regBody").addEventListener("click", event => {
+    const btn = event.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+
+    if (action === "qr") {
+        showPlayerQr(btn.dataset.id);
+        return;
+    }
+
+    setRegistrationStatus(
+        btn.dataset.id,
+        action === "approve" ? "APPROVED" : "REJECTED"
+    );
+});
+
+document.getElementById("tournamentList").addEventListener("click", event => {
+    const btn = event.target.closest("button[data-action]");
+    if (!btn) return;
+    const card = btn.closest(".t-card");
+    if (btn.dataset.action === "save-status") saveStatus(card);
+    if (btn.dataset.action === "save-room") saveRoom(card);
+    if (btn.dataset.action === "delete-tournament") deleteTournament(card);
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    const { error } = await db.auth.signOut();
+    if (error) {
+        alert(error.message);
+        return;
+    }
+    window.location.replace("login.html");
+});
+
+// ---------- RESULTS ----------
+function showResults() {
+
+    const select = document.getElementById("resTournament");
+    const current = select.value;
+
+    select.innerHTML = tournaments.map(t =>
+        `<option value="${escapeHTML(t.id)}">${escapeHTML(t.title)}</option>`
+    ).join("");
+
+    if (current) select.value = current;
+
+    loadResultRows();
+}
+
+async function loadResultRows() {
+
+    const tId = document.getElementById("resTournament").value;
+    const body = document.getElementById("resBody");
+
+    if (!tId) {
+        body.innerHTML = `<tr><td colspan="3" class="empty">Create a tournament first.</td></tr>`;
+        return;
+    }
+
+    const approved = registrations.filter(r =>
+        r.tournament_id === tId && r.registration_status === "APPROVED"
+    );
+
+    if (approved.length === 0) {
+        body.innerHTML = `<tr><td colspan="3" class="empty">No approved players in this tournament yet.</td></tr>`;
+        return;
+    }
+
+    const { data, error } = await db
+        .from("tournament_results")
+        .select("*")
+        .eq("tournament_id", tId);
+
+    if (error) {
+        showNotice("Could not load results: " + error.message, "error");
+        return;
+    }
+
+    const saved = {};
+    (data || []).forEach(x => { saved[x.player_id] = x; });
+
+    body.innerHTML = approved.map(r => {
+        const name = r.team_name || usernames[r.player_id] || "Player";
+        const old = saved[r.player_id] || {};
+        return `
+            <tr data-player="${escapeHTML(r.player_id)}" data-name="${escapeHTML(name)}">
+                <td>${escapeHTML(name)}</td>
+                <td><input class="res-pos" type="number" min="1" value="${escapeHTML(old.position ?? "")}" style="max-width:110px;"></td>
+                <td><input class="res-pts" type="number" min="0" value="${escapeHTML(old.points ?? "")}" style="max-width:110px;"></td>
+            </tr>`;
+    }).join("");
+}
+
+async function saveResults() {
+
+    const tId = document.getElementById("resTournament").value;
+    if (!tId) return;
+
+    const rows = [];
+
+    document.querySelectorAll("#resBody tr[data-player]").forEach(tr => {
+        const pos = tr.querySelector(".res-pos").value;
+        const pts = tr.querySelector(".res-pts").value;
+        if (pos === "" && pts === "") return;
+        rows.push({
+            tournament_id: tId,
+            player_id: tr.dataset.player,
+            name: tr.dataset.name,
+            position: pos === "" ? null : parseInt(pos, 10),
+            points: pts === "" ? 0 : parseInt(pts, 10)
+        });
+    });
+
+    if (rows.length === 0) {
+        showNotice("Enter at least one position or points value.", "error");
+        return;
+    }
+
+    const { error } = await db
+        .from("tournament_results")
+        .upsert(rows, { onConflict: "tournament_id,player_id" });
+
+    if (error) {
+        showNotice("Could not save results: " + error.message, "error");
+        return;
+    }
+
+    showNotice("Results saved for " + rows.length + " player(s).", "success");
+}
+
+document.getElementById("resTournament").addEventListener("change", loadResultRows);
+document.getElementById("saveResultsBtn").addEventListener("click", saveResults);
+
+
+init();
+
+</script>
+
+</body>
+</html>

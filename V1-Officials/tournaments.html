@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tournaments | V1 OFFICIALS</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+body { background: #090909; color: white; }
+
+header {
+    padding: 20px 7%;
+    background: #111;
+    border-bottom: 1px solid #292929;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { color: #ff6b00; font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+.logo span { color: white; }
+.back { color: #ff7817; text-decoration: none; }
+
+.container { max-width: 1150px; margin: auto; padding: 40px 20px; }
+
+.heading { margin-bottom: 30px; }
+.heading h1 { font-size: 32px; margin-bottom: 10px; }
+.heading h1 span { color: #ff6b00; }
+.heading p { color: #999; }
+
+#statusMessage { color: #ff8a32; margin-bottom: 20px; line-height: 1.5; }
+
+.tournament-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+
+.tournament-card {
+    background: #151515;
+    border: 1px solid #303030;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.tournament-card:hover { border-color: #ff6b00; transform: translateY(-4px); }
+
+.card-top { background: linear-gradient(120deg, #421c04, #17100c); padding: 25px; }
+.game-icon { font-size: 38px; margin-bottom: 15px; }
+.mode {
+    display: inline-block;
+    background: #ff6b00;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+.card-top h2 { font-size: 19px; }
+
+.card-body { padding: 22px; }
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid #292929;
+    font-size: 13px;
+}
+.info span:first-child { color: #999; }
+.info strong { color: #ff8a32; }
+
+.description { color: #999; font-size: 13px; line-height: 1.6; margin: 17px 0; }
+
+.register-btn {
+    width: 100%;
+    padding: 13px;
+    background: #ff6b00;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.register-btn:hover { background: #e65300; }
+.register-btn:disabled { background: #444; cursor: not-allowed; }
+
+.empty {
+    background: #151515;
+    border: 1px solid #292929;
+    padding: 40px;
+    text-align: center;
+    color: #999;
+    border-radius: 10px;
+    grid-column: 1 / -1;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #292929;
+    color: #777;
+    font-size: 12px;
+}
+
+/* ===== REGISTRATION MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 14px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+    background: #151515;
+    border: 1px solid #ff6b00;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    margin: auto;
+    overflow: hidden;
+}
+.modal-head {
+    background: linear-gradient(120deg, #421c04, #17100c);
+    padding: 20px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+.modal-head h3 { font-size: 18px; margin-bottom: 4px; }
+.modal-head p { color: #c9a58a; font-size: 12px; }
+.modal-close {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+.modal-close:hover { color: #ff6b00; }
+
+.modal-body { padding: 20px 22px 22px; }
+
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: #aaa; margin-bottom: 6px; }
+.field input {
+    width: 100%;
+    padding: 12px;
+    background: #0d0d0d;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+}
+.field input:focus { outline: none; border-color: #ff6b00; }
+.field input.invalid { border-color: #e5484d; }
+.field .hint { font-size: 11px; color: #777; margin-top: 4px; }
+.field .error { font-size: 11px; color: #ff6b6b; margin-top: 4px; display: none; }
+.field input.invalid ~ .error { display: block; }
+
+.qr-box {
+    background: #0d0d0d;
+    border: 1px dashed #ff6b00;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.qr-box > label { display: block; font-size: 13px; color: #ddd; margin-bottom: 4px; font-weight: bold; }
+.qr-box .qr-help { font-size: 11px; color: #888; line-height: 1.5; margin-bottom: 10px; }
+.qr-apps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.qr-apps span { background: #291607; color: #ff8a32; font-size: 11px; padding: 4px 9px; border-radius: 20px; }
+.qr-box input[type=file] { width: 100%; padding: 10px; background: #151515; border: 1px solid #333; border-radius: 6px; color: #ccc; font-size: 13px; }
+.qr-box input[type=file].invalid { border-color: #e5484d; }
+.qr-box .error { font-size: 11px; color: #ff6b6b; margin-top: 6px; display: none; }
+.qr-box input.invalid ~ .error { display: block; }
+.qr-preview { display: none; margin-top: 12px; text-align: center; }
+.qr-preview img { max-width: 160px; max-height: 160px; border-radius: 8px; border: 1px solid #333; background: white; padding: 4px; }
+
+.mode-pill {
+    display: inline-block;
+    background: #ff6b00;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.summary {
+    background: #0d0d0d;
+    border: 1px solid #292929;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 16px 0;
+    font-size: 13px;
+}
+.summary .row { display: flex; justify-content: space-between; padding: 5px 0; }
+.summary .row span:first-child { color: #999; }
+.summary .row strong { color: #ff8a32; }
+
+.rules-box {
+    background: #0d0d0d;
+    border: 1px solid #292929;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+.rules-box ol { padding-left: 18px; }
+
+.accept {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+.accept input { margin-top: 3px; accent-color: #ff6b00; }
+.accept-error { font-size: 11px; color: #ff6b6b; margin-bottom: 10px; display: none; }
+
+.form-message { font-size: 13px; color: #ff6b6b; margin: 10px 0; display: none; line-height: 1.5; }
+
+.pay-btn {
+    width: 100%;
+    padding: 14px;
+    background: #ff6b00;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+.pay-btn:hover { background: #e65300; }
+.pay-btn:disabled { background: #444; cursor: wait; }
+
+.secure-note { text-align: center; color: #777; font-size: 11px; margin-top: 10px; }
+
+@media(max-width: 850px) {
+    .tournament-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 550px) {
+    .tournament-grid { grid-template-columns: 1fr; }
+    .heading h1 { font-size: 25px; }
+    header { padding: 18px 5%; }
+}
+
+</style>
+
+<!-- Razorpay checkout loads BEFORE the page script so it is always ready on click -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="css/reactor-2.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">V1 <span>OFFICIALS</span></div>
+    <a href="dashboard.html" class="back">← Dashboard</a>
+</header>
+
+<main class="container">
+
+    <section class="heading">
+        <h1>FREE FIRE <span>TOURNAMENTS</span></h1>
+        <p>Choose your battle. Register your team. Become a champion.</p>
+    </section>
+
+    <p id="statusMessage">Loading tournaments...</p>
+
+    <section class="tournament-grid" id="tournamentGrid"></section>
+
+</main>
+
+<footer>
+    © 2026 V1 OFFICIALS | All Rights Reserved.
+</footer>
+
+<!-- REGISTRATION FORM -->
+<div class="modal-overlay" id="regModal" role="dialog" aria-modal="true" aria-labelledby="regTitle">
+    <div class="modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="regTitle">Tournament registration</h3>
+                <p id="regSubtitle"></p>
+            </div>
+            <button type="button" class="modal-close" id="regClose" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="field">
+                <label for="fPlayerName">Player name</label>
+                <input type="text" id="fPlayerName" placeholder="Your in-game or real name" autocomplete="name">
+                <div class="error">Enter your name.</div>
+            </div>
+
+            <div class="field">
+                <label for="fPlayerUid">Free Fire UID</label>
+                <input type="text" id="fPlayerUid" inputmode="numeric" placeholder="Your Free Fire player UID">
+                <div class="error">Enter your Free Fire UID (numbers only).</div>
+            </div>
+
+            <div class="field">
+                <label for="fPhone">Mobile number</label>
+                <input type="tel" id="fPhone" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" autocomplete="tel-national">
+                <div class="error">Enter a valid 10-digit Indian mobile number.</div>
+            </div>
+
+            <div class="field">
+                <label>Game mode</label>
+                <span class="mode-pill" id="fMode"></span>
+            </div>
+
+            <div id="teamFields">
+                <div class="field">
+                    <label for="fTeamName">Team name</label>
+                    <input type="text" id="fTeamName" placeholder="Your team name">
+                    <div class="error">Enter your team name.</div>
+                </div>
+
+                <div id="teammateFields"></div>
+            </div>
+
+            <div class="qr-box">
+                <label for="fQr">Your payment QR code</label>
+                <p class="qr-help">Upload a screenshot of your QR so prize money can be sent to you.</p>
+                <div class="qr-apps"><span>PhonePe</span><span>Google Pay</span><span>Paytm</span><span>BHIM UPI</span><span>Any UPI app</span></div>
+                <input type="file" id="fQr" accept="image/png,image/jpeg,image/webp">
+                <div class="error" id="qrError">Upload your payment QR (PNG, JPG or WebP, max 2 MB).</div>
+                <div class="qr-preview" id="qrPreview"><img id="qrPreviewImg" alt="QR preview"></div>
+            </div>
+
+            <div class="summary">
+                <div class="row"><span>Tournament</span><strong id="sTitle"></strong></div>
+                <div class="row"><span>Entry fee</span><strong id="sFee"></strong></div>
+            </div>
+
+            <div class="rules-box">
+                <ol>
+                    <li>No vehicles allowed.</li>
+                    <li>No teaming with enemy players.</li>
+                    <li>Play fair and respect all players.</li>
+                    <li>No hacks, cheats or scripts.</li>
+                    <li>No abusing game glitches.</li>
+                    <li>Admin decision is final after review.</li>
+                </ol>
+            </div>
+
+            <label class="accept">
+                <input type="checkbox" id="fRules">
+                <span>I accept all tournament rules.</span>
+            </label>
+            <div class="accept-error" id="rulesError">Accept the rules to continue.</div>
+
+            <div class="form-message" id="formMessage"></div>
+
+            <button type="button" class="pay-btn" id="payBtn">Register and pay</button>
+            <p class="secure-note">Payments are processed securely by Razorpay.</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+const db = window.supabaseClient;
+
+const grid = document.getElementById("tournamentGrid");
+const statusMessage = document.getElementById("statusMessage");
+
+let currentUser = null;
+let myRegistrations = [];
+let paymentInProgress = false;
+let activeTournament = null;
+
+const icons = {
+    SOLO: "🎯",
+    DUO: "🔥",
+    SQUAD: "🏆"
+};
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function formatDate(value) {
+    if (!value) return "To be announced";
+
+    return new Date(value).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+// Reads the REAL error message returned by an Edge Function.
+// supabase-js only says "non-2xx status code" unless we read error.context.
+async function getFunctionError(error) {
+    try {
+        const res = error?.context;
+
+        if (res && typeof res.clone === "function") {
+            const text = await res.clone().text();
+
+            try {
+                const json = JSON.parse(text);
+                return json.error || json.message || text;
+            } catch {
+                if (text) return text;
+            }
+        }
+    } catch (readError) {
+        console.error("Could not read function error body:", readError);
+    }
+
+    return error?.message || "Could not communicate with payment server.";
+}
+
+// LOAD TOURNAMENTS
+async function loadTournaments(keepMessage) {
+
+    if (!db) {
+        statusMessage.innerText = "Supabase connection failed.";
+        return;
+    }
+
+    const { data: sessionData, error: sessionError } =
+        await db.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    currentUser = sessionData.session.user;
+
+    const { data: tournaments, error } = await db
+        .from("tournaments")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        statusMessage.innerText = "Error: " + error.message;
+        return;
+    }
+
+    const { data: registrations, error: regError } = await db
+    .from("tournament_registrations")
+    .select(`
+        tournament_id,
+        registration_status,
+        player_uid,
+        phone_number,
+        team_name,
+        teammates
+    `)
+    .eq("player_id", currentUser.id);
+
+    if (regError) {
+        statusMessage.innerText = "Could not load your registrations.";
+        return;
+    }
+
+    myRegistrations = registrations || [];
+
+    // Approved (paid) players per tournament, via a database function
+    // because players cannot read other players' registrations.
+    let slotCounts = {};
+    const { data: countData, error: countError } = await db.rpc("get_slot_counts");
+    if (countError) {
+        console.warn("Could not load slot counts:", countError.message);
+    } else {
+        slotCounts = countData || {};
+    }
+
+    if (!keepMessage) {
+        statusMessage.innerText =
+            tournaments.length + " tournament(s) found.";
+    }
+
+    grid.innerHTML = "";
+
+    if (tournaments.length === 0) {
+        grid.innerHTML = `
+            <div class="empty">
+                <h2>No tournaments available</h2>
+                <p>New tournaments will appear here soon.</p>
+            </div>`;
+        return;
+    }
+
+    tournaments.forEach(tournament => {
+
+        const registration = myRegistrations.find(
+            r => r.tournament_id === tournament.id
+        );
+
+        const regStatus = registration ? registration.registration_status : null;
+
+        const maxSlots = Number(tournament.max_slots) || 0;
+        const filled = Number(slotCounts[tournament.id] || 0);
+        const slotsLeft = Math.max(maxSlots - filled, 0);
+        const isFull = maxSlots > 0 && slotsLeft === 0;
+
+        let buttonText = "REGISTER NOW";
+        let disabled = false;
+
+        if (regStatus === "APPROVED") {
+            buttonText = "APPROVED";
+            disabled = true;
+        } else if (tournament.status !== "OPEN") {
+            buttonText = regStatus || tournament.status;
+            disabled = true;
+        } else if (isFull) {
+            buttonText = "SLOTS FULL";
+            disabled = true;
+        } else if (regStatus === "PENDING") {
+            buttonText = "COMPLETE PAYMENT";
+        } else if (regStatus === "REJECTED") {
+            buttonText = "REGISTER AGAIN";
+        }
+
+        const card = document.createElement("article");
+        card.className = "tournament-card";
+
+        card.innerHTML = `
+            <div class="card-top">
+                <div class="game-icon">
+                    ${icons[tournament.game_mode] || "🎮"}
+                </div>
+
+                <div class="mode">
+                    ${escapeHTML(tournament.game_mode)}
+                </div>
+
+                <h2>${escapeHTML(tournament.title)}</h2>
+            </div>
+
+            <div class="card-body">
+
+                <div class="info">
+                    <span>Entry Fee</span>
+                    <strong>₹${Number(tournament.entry_fee).toFixed(2)}</strong>
+                </div>
+
+                <div class="info">
+                    <span>Prize Pool</span>
+                    <strong>₹${Number(tournament.prize_pool).toFixed(2)}</strong>
+                </div>
+
+                <div class="info">
+                    <span>Slots Left</span>
+                    <strong style="color:${isFull ? "#ff6b6b" : slotsLeft <= 5 ? "#ffd24d" : "#ff8a32"}">
+                        ${isFull ? "FULL" : slotsLeft + " of " + maxSlots}
+                    </strong>
+                </div>
+
+                <div class="info">
+                    <span>Match Date</span>
+                    <strong>${escapeHTML(formatDate(tournament.match_date))}</strong>
+                </div>
+
+                <p class="description">
+                    ${escapeHTML(tournament.description || "Join this tournament and compete!")}
+                </p>
+
+                <button
+                    class="register-btn"
+                    data-id="${escapeHTML(tournament.id)}"
+                    ${disabled ? "disabled" : ""}>
+                    ${escapeHTML(buttonText)}
+                </button>
+
+            </div>
+        `;
+
+        const button = card.querySelector("button");
+
+        if (!disabled) {
+            button.addEventListener("click", () => {
+                openRegistrationForm(tournament);
+            });
+        }
+
+        grid.appendChild(card);
+    });
+}
+
+
+// ===== REGISTRATION FORM =====
+
+const modal = document.getElementById("regModal");
+const payBtn = document.getElementById("payBtn");
+const formMessage = document.getElementById("formMessage");
+const rulesError = document.getElementById("rulesError");
+
+const fPlayerName = document.getElementById("fPlayerName");
+const fPlayerUid = document.getElementById("fPlayerUid");
+const fPhone = document.getElementById("fPhone");
+const fTeamName = document.getElementById("fTeamName");
+const fRules = document.getElementById("fRules");
+const fQr = document.getElementById("fQr");
+const qrPreview = document.getElementById("qrPreview");
+const qrPreviewImg = document.getElementById("qrPreviewImg");
+
+fQr.addEventListener("change", () => {
+    fQr.classList.remove("invalid");
+    const file = fQr.files[0];
+    if (file && file.type.startsWith("image/")) {
+        qrPreviewImg.src = URL.createObjectURL(file);
+        qrPreview.style.display = "block";
+    } else {
+        qrPreview.style.display = "none";
+    }
+});
+const teamFields = document.getElementById("teamFields");
+const teammateFields = document.getElementById("teammateFields");
+
+function teammateCount(mode) {
+    if (mode === "DUO") return 1;
+    if (mode === "SQUAD") return 3;
+    return 0;
+}
+
+function openRegistrationForm(tournament) {
+
+    if (paymentInProgress) return;
+
+    activeTournament = tournament;
+
+    const existing = myRegistrations.find(
+        r => r.tournament_id === tournament.id
+    );
+
+    document.getElementById("regSubtitle").innerText =
+        "Complete your details to apply for this tournament.";
+    document.getElementById("fMode").innerText = tournament.game_mode;
+    document.getElementById("sTitle").innerText = tournament.title;
+    document.getElementById("sFee").innerText =
+        "₹" + Number(tournament.entry_fee).toFixed(2);
+
+    fPlayerName.value = "";
+    fPlayerUid.value = existing?.player_uid || "";
+    fPhone.value = existing?.phone_number || "";
+    fTeamName.value = existing?.team_name || "";
+    fRules.checked = false;
+    fQr.value = "";
+    qrPreview.style.display = "none";
+
+    // Teammate UID inputs depend on the game mode.
+    const count = teammateCount(tournament.game_mode);
+    const saved = (existing?.teammates || "").split(",").map(s => s.trim());
+
+    teammateFields.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        const label = count === 1 ? "Teammate Free Fire UID" : "Teammate " + (i + 1) + " Free Fire UID";
+        const wrap = document.createElement("div");
+        wrap.className = "field";
+        wrap.innerHTML = `
+            <label>${label}</label>
+            <input type="text" class="teammate-uid" inputmode="numeric"
+                   placeholder="Teammate UID" value="${escapeHTML(saved[i] || "")}">
+            <div class="error">Enter a valid teammate UID.</div>
+        `;
+        teammateFields.appendChild(wrap);
+    }
+
+    teamFields.style.display = count > 0 ? "block" : "none";
+
+    clearErrors();
+    payBtn.disabled = false;
+    payBtn.innerText = "Register and pay";
+
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    fPlayerName.focus();
+}
+
+function closeRegistrationForm() {
+    if (paymentInProgress) return;
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+    activeTournament = null;
+}
+
+function clearErrors() {
+    modal.querySelectorAll("input.invalid").forEach(i => i.classList.remove("invalid"));
+    rulesError.style.display = "none";
+    formMessage.style.display = "none";
+    formMessage.innerText = "";
+}
+
+function showFormMessage(text) {
+    formMessage.innerText = text;
+    formMessage.style.display = "block";
+}
+
+function validateForm() {
+
+    clearErrors();
+
+    let valid = true;
+    const mode = activeTournament.game_mode;
+
+    function check(input, ok) {
+        if (!ok) {
+            input.classList.add("invalid");
+            valid = false;
+        }
+    }
+
+    check(fPlayerName, fPlayerName.value.trim().length >= 2);
+    check(fPlayerUid, /^\d{5,15}$/.test(fPlayerUid.value.trim()));
+
+    const cleanPhone = fPhone.value.replace(/\s+/g, "");
+    check(fPhone, /^[6-9]\d{9}$/.test(cleanPhone));
+
+    if (mode !== "SOLO") {
+        check(fTeamName, fTeamName.value.trim().length > 0);
+
+        teammateFields.querySelectorAll(".teammate-uid").forEach(input => {
+            check(input, /^\d{5,15}$/.test(input.value.trim()));
+        });
+    }
+
+    const qrFile = fQr.files[0];
+    const okTypes = ["image/png", "image/jpeg", "image/webp"];
+    check(fQr, !!qrFile && okTypes.includes(qrFile.type) && qrFile.size <= 2 * 1024 * 1024);
+
+    if (!fRules.checked) {
+        rulesError.style.display = "block";
+        valid = false;
+    }
+
+    return valid;
+}
+
+modal.querySelectorAll("input").forEach(() => {});
+modal.addEventListener("input", e => {
+    if (e.target.classList.contains("invalid")) e.target.classList.remove("invalid");
+    if (e.target === fRules) rulesError.style.display = "none";
+});
+
+document.getElementById("regClose").addEventListener("click", closeRegistrationForm);
+modal.addEventListener("click", e => { if (e.target === modal) closeRegistrationForm(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeRegistrationForm(); });
+
+payBtn.addEventListener("click", submitRegistration);
+
+
+// ===== SUBMIT + PAY =====
+
+async function submitRegistration() {
+
+    if (paymentInProgress || !activeTournament) return;
+
+    if (!validateForm()) {
+        showFormMessage("Please fix the highlighted fields.");
+        return;
+    }
+
+    if (typeof Razorpay === "undefined") {
+        showFormMessage("Payment checkout could not load. Refresh the page and try again.");
+        return;
+    }
+
+    const tournament = activeTournament;
+    const cleanPhone = fPhone.value.replace(/\s+/g, "");
+    const teammates = Array.from(teammateFields.querySelectorAll(".teammate-uid"))
+        .map(i => i.value.trim())
+        .join(", ");
+
+    paymentInProgress = true;
+    payBtn.disabled = true;
+    payBtn.innerText = "Creating payment order...";
+    statusMessage.innerText = "Creating secure payment order...";
+
+    try {
+
+        // Upload the player's payment QR first (path: <player id>/<tournament id>).
+        payBtn.innerText = "Uploading QR...";
+        statusMessage.innerText = "Uploading your payment QR...";
+
+        const qrFile = fQr.files[0];
+        const { error: uploadError } = await db.storage
+            .from("payment-qr")
+            .upload(currentUser.id + "/" + tournament.id, qrFile, {
+                upsert: true,
+                contentType: qrFile.type
+            });
+
+        if (uploadError) {
+            throw new Error("QR upload failed: " + uploadError.message);
+        }
+
+        payBtn.innerText = "Creating payment order...";
+        statusMessage.innerText = "Creating secure payment order...";
+
+        const { data: order, error } = await db.functions.invoke(
+            "create-payment",
+            {
+                body: {
+                    tournament_id: tournament.id,
+                    player_name: fPlayerName.value.trim(),
+                    player_uid: fPlayerUid.value.trim(),
+                    phone_number: cleanPhone,
+                    team_name: fTeamName.value.trim() || null,
+                    teammates: teammates || null,
+                    rules_accepted: true
+                }
+            }
+        );
+
+        if (error) {
+            const realMessage = await getFunctionError(error);
+            console.error("Edge Function error:", error, "->", realMessage);
+            throw new Error(realMessage);
+        }
+
+        if (
+            !order ||
+            !order.success ||
+            !order.razorpay_order_id ||
+            !order.razorpay_key_id
+        ) {
+            throw new Error(
+                order?.error || "Could not create payment order."
+            );
+        }
+
+        statusMessage.innerText = "Opening Razorpay checkout...";
+
+        // Close the form so Razorpay's checkout is not covered by it.
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+
+        const options = {
+            key: order.razorpay_key_id,
+            amount: order.amount,
+            currency: order.currency,
+            name: "V1 OFFICIALS",
+            description: order.tournament_title,
+            order_id: order.razorpay_order_id,
+
+            prefill: {
+                name: fPlayerName.value.trim(),
+                contact: cleanPhone
+            },
+
+            config: {
+                display: {
+                    preferences: {
+                        show_default_blocks: true
+                    }
+                }
+            },
+
+            theme: {
+                color: "#ff6b00"
+            },
+            handler: async function (response) {
+
+                statusMessage.innerText = "Payment received. Verifying...";
+
+                const { data, error } = await db.functions.invoke("verify-payment", {
+                    body: {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    }
+                });
+
+                paymentInProgress = false;
+
+                if (!error && data?.success) {
+                    // Approved automatically - no popup, just refresh the card.
+                    statusMessage.innerText = "✅ Payment successful! You are now APPROVED.";
+                    activeTournament = null;
+                    await loadTournaments(true);
+                } else {
+                    const msg = error ? await getFunctionError(error) : data?.error;
+                    console.error("Verify error:", msg);
+                    statusMessage.innerText =
+                        "Payment received. Confirming your approval...";
+                    activeTournament = null;
+                    waitForApproval(tournament.id);
+                }
+            },
+            modal: {
+                ondismiss: function () {
+                    paymentInProgress = false;
+                    activeTournament = null;
+                    statusMessage.innerText =
+                        "Checkout closed. If you paid, approval will appear shortly.";
+                    loadTournaments();
+                }
+            }
+        };
+
+        const razorpay = new Razorpay(options);
+
+        razorpay.on("payment.failed", function (response) {
+            console.error("Razorpay payment failed:", response.error);
+            paymentInProgress = false;
+            statusMessage.innerText =
+                "Payment failed: " +
+                (response.error?.description || "Please try again.");
+        });
+
+        razorpay.open();
+
+    } catch (error) {
+
+        console.error("Tournament payment error:", error);
+
+        paymentInProgress = false;
+        payBtn.disabled = false;
+        payBtn.innerText = "Register and pay";
+
+        // Keep the form open so the player can fix details and retry.
+        showFormMessage("Payment could not be started: " + error.message);
+        statusMessage.innerText = "Please try again.";
+    }
+}
+
+// Polls until the payment webhook approves the registration (max ~45s).
+async function waitForApproval(tournamentId, attempt = 0) {
+
+    const { data } = await db
+        .from("tournament_registrations")
+        .select("registration_status")
+        .eq("player_id", currentUser.id)
+        .eq("tournament_id", tournamentId)
+        .maybeSingle();
+
+    if (data?.registration_status === "APPROVED") {
+        statusMessage.innerText = "✅ Payment successful! You are now APPROVED.";
+        await loadTournaments(true);
+        return;
+    }
+
+    if (attempt >= 15) {
+        statusMessage.innerText =
+            "Payment received. Approval is taking longer than usual - refresh in a minute.";
+        await loadTournaments(true);
+        return;
+    }
+
+    setTimeout(() => waitForApproval(tournamentId, attempt + 1), 3000);
+}
+
+// START
+loadTournaments();
+
+// Keep slot counts live while the page is open (every 20s, only when idle).
+setInterval(() => {
+    if (!paymentInProgress && !modal.classList.contains("open")) {
+        loadTournaments(true);
+    }
+}, 20000);
+
+</script>
+</body>
+</html>

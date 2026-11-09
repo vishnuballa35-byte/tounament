@@ -1,0 +1,907 @@
+/* =========================================================
+   V1 OFFICIALS — REACTOR 2.0 PREMIUM ESPORTS UI
+   OBSIDIAN GLASS | ENERGY CORE | CYBER HUD
+   LOAD THIS AFTER ALL EXISTING PAGE STYLES
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800;900&display=swap');
+
+:root {
+    --bg: #05070d;
+    --surface: rgba(13, 19, 32, .78);
+    --surface-light: rgba(25, 34, 53, .72);
+
+    --ember: #ff6b00;
+    --ember-light: #ffab45;
+    --cyan: #20e5ff;
+    --violet: #9465ff;
+
+    --text: #edf4ff;
+    --muted: #8998b5;
+
+    --border: rgba(255,255,255,.09);
+    --glass: rgba(255,255,255,.045);
+
+    --glass-shadow:
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 -1px 0 rgba(0,0,0,.5),
+        0 20px 55px rgba(0,0,0,.4);
+
+    --glow-orange: 0 0 25px rgba(255,107,0,.25);
+    --glow-cyan: 0 0 25px rgba(32,229,255,.18);
+
+    --heading: 'Orbitron', sans-serif;
+    --body: 'Exo 2', sans-serif;
+}
+
+/* =============== GLOBAL FOUNDATION =============== */
+
+* {
+    box-sizing: border-box;
+    font-family: var(--body);
+}
+
+html {
+    scroll-behavior: smooth;
+    background: var(--bg);
+    color-scheme: dark;
+}
+
+body {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    background: transparent !important;
+    color: var(--text);
+    overflow-x: hidden;
+    letter-spacing: .25px;
+}
+
+h1, h2, h3, h4,
+.logo, .btn, button,
+.primary-btn, .login-btn,
+.logout-btn, .register-btn,
+.submit-btn, .card-btn,
+.mode, .badge {
+    font-family: var(--heading);
+}
+
+/* =============== ANIMATED ENERGY BACKGROUND =============== */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: -30%;
+    z-index: -2;
+    pointer-events: none;
+
+    background:
+        radial-gradient(ellipse at 15% 20%,
+            rgba(255,107,0,.23), transparent 38%),
+
+        radial-gradient(ellipse at 85% 18%,
+            rgba(115,70,255,.20), transparent 38%),
+
+        radial-gradient(ellipse at 75% 85%,
+            rgba(32,229,255,.15), transparent 40%),
+
+        radial-gradient(ellipse at 20% 90%,
+            rgba(255,40,110,.09), transparent 35%);
+
+    filter: blur(35px);
+    animation: reactorAmbient 22s ease-in-out infinite alternate;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(255,255,255,.012) 4px
+        );
+
+    background-size: 55px 55px, 55px 55px, 100% 4px;
+
+    mask-image:
+        radial-gradient(ellipse at center, black 10%, transparent 85%);
+
+    -webkit-mask-image:
+        radial-gradient(ellipse at center, black 10%, transparent 85%);
+}
+
+@keyframes reactorAmbient {
+    0% {
+        transform: translate(-2%, -1%) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(2%, 2%) rotate(4deg) scale(1.06);
+    }
+    100% {
+        transform: translate(-1%, 3%) rotate(-3deg) scale(1.1);
+    }
+}
+
+@keyframes energyPulse {
+    0%, 100% {
+        opacity: .35;
+    }
+    50% {
+        opacity: .85;
+    }
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        filter: brightness(.85);
+    }
+    50% {
+        filter: brightness(1.4);
+    }
+}
+
+@keyframes floating {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+@keyframes shineSweep {
+    from {
+        transform: translateX(-150%) skewX(-20deg);
+    }
+    to {
+        transform: translateX(250%) skewX(-20deg);
+    }
+}
+
+/* =============== PREMIUM NAVIGATION =============== */
+
+header, .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    background: rgba(5,9,18,.78) !important;
+
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+
+    border-bottom: 1px solid rgba(255,255,255,.09);
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.35),
+        0 1px 0 rgba(255,107,0,.12);
+}
+
+header::after, .navbar::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--ember),
+        var(--cyan),
+        transparent
+    );
+
+    animation: energyPulse 4s infinite;
+}
+
+.logo {
+    font-weight: 900;
+    letter-spacing: 3px;
+
+    background: linear-gradient(
+        100deg,
+        #fff1dc,
+        var(--ember-light),
+        var(--ember)
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 12px rgba(255,107,0,.4));
+}
+
+.logo span {
+    -webkit-text-fill-color: white;
+}
+
+.nav-links a,
+.header-links a,
+.back,
+.home-link {
+    transition: .3s ease;
+}
+
+.nav-links a:hover,
+.header-links a:hover,
+.back:hover,
+.home-link:hover {
+    color: var(--cyan);
+    text-shadow: 0 0 15px rgba(32,229,255,.6);
+}
+
+/* =============== PREMIUM GLASS PANELS =============== */
+
+.box,
+.card,
+.t-card,
+.my-card,
+.tournament-card,
+.feature,
+.profile,
+.welcome,
+.login-box,
+.empty-box,
+div.empty {
+
+    position: relative;
+    isolation: isolate;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.085),
+            rgba(255,255,255,.015) 55%,
+            rgba(255,255,255,.035)
+        ) !important;
+
+    background-color: rgba(11,17,30,.78) !important;
+
+    border: 1px solid rgba(255,255,255,.095);
+    border-radius: 16px;
+
+    backdrop-filter: blur(20px) saturate(145%);
+    -webkit-backdrop-filter: blur(20px) saturate(145%);
+
+    box-shadow: var(--glass-shadow);
+
+    transition:
+        border-color .35s ease,
+        box-shadow .35s ease,
+        transform .35s ease;
+}
+
+/* Glass reflection */
+
+.box::before,
+.card::before,
+.t-card::before,
+.my-card::before,
+.tournament-card::before,
+.feature::before,
+.profile::before,
+.welcome::before,
+.empty-box::before {
+
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.6),
+        transparent
+    );
+
+    pointer-events: none;
+}
+
+/* Neon corner detailing */
+
+.box::after,
+.card::after,
+.t-card::after,
+.my-card::after,
+.tournament-card::after,
+.feature::after,
+.profile::after,
+.welcome::after,
+.empty-box::after {
+
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+
+    border-top: 2px solid var(--cyan);
+    border-left: 2px solid var(--cyan);
+
+    border-radius: 14px 0 0 0;
+
+    opacity: .65;
+    pointer-events: none;
+}
+
+.card:hover,
+.t-card:hover,
+.my-card:hover,
+.tournament-card:hover,
+.feature:hover {
+
+    transform: translateY(-6px);
+
+    border-color: rgba(255,107,0,.55);
+
+    box-shadow:
+        var(--glass-shadow),
+        0 0 0 1px rgba(255,107,0,.12),
+        0 15px 45px rgba(255,107,0,.13),
+        0 0 35px rgba(32,229,255,.07);
+}
+
+/* =============== DASHBOARD SIDEBAR =============== */
+
+.sidebar {
+    background: rgba(7,12,23,.78) !important;
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+
+    border-right: 1px solid var(--border);
+}
+
+.sidebar a {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    color: var(--muted);
+    transition: .3s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    color: #fff;
+
+    background: linear-gradient(
+        90deg,
+        rgba(255,107,0,.22),
+        rgba(255,107,0,.025)
+    );
+
+    border-color: rgba(255,107,0,.25);
+
+    box-shadow:
+        inset 3px 0 var(--ember),
+        0 0 20px rgba(255,107,0,.08);
+}
+
+/* =============== WELCOME / HERO =============== */
+
+.welcome,
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome {
+    background:
+        radial-gradient(
+            ellipse at 90% 10%,
+            rgba(255,107,0,.24),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 10% 100%,
+            rgba(32,229,255,.12),
+            transparent 50%
+        ),
+        rgba(12,18,32,.78) !important;
+
+    border-color: rgba(255,107,0,.25);
+}
+
+.hero {
+    background:
+        radial-gradient(
+            ellipse at 75% 45%,
+            rgba(255,107,0,.25),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 90% 90%,
+            rgba(138,92,255,.16),
+            transparent 50%
+        ),
+        transparent !important;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1,
+.welcome h1 {
+    font-family: var(--heading);
+    letter-spacing: 1px;
+}
+
+.hero h1 span,
+.welcome h1 span,
+h1 span,
+h2 span {
+    background: linear-gradient(
+        90deg,
+        #fff0d7,
+        var(--ember-light),
+        var(--ember)
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* =============== PREMIUM BUTTONS =============== */
+
+.btn,
+.login-btn,
+.primary-btn,
+.logout-btn,
+.register-btn,
+.submit-btn,
+.card-btn,
+.card a,
+.empty-box a {
+
+    position: relative;
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #ffad55,
+        #ff6b00 50%,
+        #c94400
+    ) !important;
+
+    color: white !important;
+
+    border: 1px solid rgba(255,190,120,.55);
+    border-radius: 9px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        inset 0 -3px 0 rgba(0,0,0,.25),
+        0 7px 25px rgba(255,107,0,.25);
+
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    transition: .3s ease;
+}
+
+.btn:hover,
+.login-btn:hover,
+.primary-btn:hover,
+.logout-btn:hover,
+.register-btn:not(:disabled):hover,
+.submit-btn:not(:disabled):hover,
+.card-btn:hover,
+.card a:hover,
+.empty-box a:hover {
+
+    transform: translateY(-3px);
+
+    filter: brightness(1.15);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.45),
+        0 10px 35px rgba(255,107,0,.45);
+}
+
+/* Button shine */
+
+.btn::after,
+.login-btn::after,
+.primary-btn::after,
+.register-btn::after,
+.submit-btn::after,
+.card-btn::after {
+
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        110deg,
+        transparent 35%,
+        rgba(255,255,255,.35) 50%,
+        transparent 65%
+    );
+
+    transform: translateX(-150%);
+    pointer-events: none;
+}
+
+.btn:hover::after,
+.login-btn:hover::after,
+.primary-btn:hover::after,
+.register-btn:hover::after,
+.submit-btn:hover::after,
+.card-btn:hover::after {
+    animation: shineSweep .7s ease;
+}
+
+/* Secondary cyber button */
+
+.secondary-btn {
+    background: rgba(32,229,255,.06);
+    border: 1px solid rgba(32,229,255,.45);
+    color: var(--cyan);
+
+    box-shadow: inset 0 0 20px rgba(32,229,255,.08);
+
+    transition: .3s;
+}
+
+.secondary-btn:hover {
+    background: rgba(32,229,255,.15);
+    color: white;
+    box-shadow: 0 0 25px rgba(32,229,255,.22);
+}
+
+/* =============== FORMS =============== */
+
+input,
+select,
+textarea {
+    background: rgba(3,7,15,.78) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    border-radius: 9px !important;
+
+    color: var(--text) !important;
+
+    box-shadow: inset 0 2px 8px rgba(0,0,0,.35);
+
+    transition: .25s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--cyan) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(32,229,255,.10),
+        0 0 20px rgba(32,229,255,.13),
+        inset 0 2px 8px rgba(0,0,0,.3);
+}
+
+::placeholder {
+    color: #64718c;
+}
+
+option {
+    background: #0c1220;
+    color: white;
+}
+
+/* =============== TABLES / LEADERBOARD =============== */
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    color: var(--cyan);
+    background: rgba(32,229,255,.045);
+    border-bottom: 1px solid rgba(32,229,255,.2);
+    font-family: var(--heading);
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+td,
+th {
+    border-bottom-color: rgba(255,255,255,.065);
+}
+
+tbody tr {
+    transition: .25s ease;
+}
+
+tbody tr:hover {
+    background: rgba(255,107,0,.09);
+}
+
+tr.top td {
+    background: rgba(255,190,60,.075);
+}
+
+td.rank,
+td.pts {
+    font-family: var(--heading);
+}
+
+td.pts {
+    color: var(--ember-light);
+    text-shadow: 0 0 12px rgba(255,107,0,.35);
+}
+
+/* =============== TOURNAMENT CARDS =============== */
+
+.card-top {
+    background:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(32,229,255,.14),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(255,107,0,.22),
+            rgba(138,92,255,.14),
+            rgba(10,15,28,.8)
+        ) !important;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.card-top h3,
+.t-card h3,
+.card h3,
+.my-card h3,
+.feature h3 {
+    color: var(--ember-light);
+}
+
+.info {
+    border-bottom: 1px solid rgba(255,255,255,.075);
+}
+
+.info strong {
+    color: var(--cyan);
+}
+
+/* =============== STATUS BADGES =============== */
+
+.badge {
+    border-radius: 5px;
+    letter-spacing: 1px;
+    border: 1px solid transparent;
+}
+
+.badge.PENDING {
+    background: rgba(255,210,77,.10);
+    color: #ffd24d;
+    border-color: rgba(255,210,77,.25);
+}
+
+.badge.APPROVED {
+    background: rgba(54,255,160,.10);
+    color: #36ffa0;
+    border-color: rgba(54,255,160,.25);
+}
+
+.badge.REJECTED {
+    background: rgba(255,84,112,.10);
+    color: #ff5470;
+    border-color: rgba(255,84,112,.25);
+}
+
+/* =============== PROFILE / ROOM =============== */
+
+.profile {
+    border-color: rgba(32,229,255,.17);
+}
+
+.room {
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,107,0,.14),
+            rgba(32,229,255,.07)
+        ) !important;
+
+    border: 1px solid rgba(255,107,0,.35);
+
+    box-shadow:
+        inset 0 0 30px rgba(255,107,0,.06),
+        0 0 25px rgba(255,107,0,.08);
+}
+
+.room strong {
+    color: var(--ember-light);
+}
+
+/* =============== LOGIN EXPERIENCE =============== */
+
+.login-box {
+    border-color: rgba(32,229,255,.20);
+
+    box-shadow:
+        0 30px 90px rgba(0,0,0,.55),
+        0 0 50px rgba(255,107,0,.08),
+        inset 0 1px rgba(255,255,255,.12);
+}
+
+.login-box .tabs {
+    background: rgba(0,0,0,.35);
+    border: 1px solid var(--border);
+}
+
+.login-box .tabs button {
+    background: transparent;
+    color: var(--muted);
+}
+
+.login-box .tabs button.active {
+    background: linear-gradient(135deg,#ff9b3d,#d84f00);
+    color: white;
+    box-shadow: 0 5px 18px rgba(255,107,0,.25);
+}
+
+.options a,
+.show-btn {
+    color: var(--cyan);
+}
+
+/* =============== DASHBOARD TYPOGRAPHY =============== */
+
+.lead,
+.subtitle,
+.heading p,
+.section-heading p,
+.card p,
+.feature p,
+.profile p,
+.t-meta,
+.my-meta,
+.description,
+.note,
+.welcome p {
+    color: var(--muted);
+}
+
+.box h2,
+.profile h2 {
+    color: var(--ember-light);
+}
+
+/* =============== FOOTER =============== */
+
+footer {
+    background: rgba(4,7,14,.88) !important;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+
+    backdrop-filter: blur(18px);
+}
+
+footer h2 {
+    color: var(--ember-light);
+}
+
+/* =============== SCROLLBAR =============== */
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ember) #080d18;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #080d18;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        var(--ember),
+        #a93600
+    );
+
+    border-radius: 10px;
+}
+
+/* =============== FOCUS ACCESSIBILITY =============== */
+
+:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+}
+
+/* =============== RESPONSIVE EXPERIENCE =============== */
+
+@media(max-width: 850px) {
+
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .cards,
+    .tournament-grid,
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+
+    .main {
+        min-width: 0;
+    }
+}
+
+@media(max-width: 600px) {
+
+    :root {
+        --glass-shadow:
+            inset 0 1px 0 rgba(255,255,255,.10),
+            0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .cards,
+    .tournament-grid,
+    .feature-grid,
+    .t-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .box,
+    .card,
+    .t-card,
+    .my-card,
+    .profile,
+    .welcome {
+        border-radius: 12px;
+    }
+
+    .main {
+        padding: 18px;
+    }
+
+    .hero {
+        min-height: 480px;
+    }
+
+    .logo {
+        font-size: 18px;
+        letter-spacing: 1.5px;
+    }
+}
+
+/* =============== REDUCED MOTION =============== */
+
+@media(prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

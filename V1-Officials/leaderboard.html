@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard | V1 OFFICIALS</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+body { background: #090909; color: white; }
+
+header {
+    padding: 20px 7%;
+    background: #111;
+    border-bottom: 1px solid #292929;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { color: #ff6b00; font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+.logo span { color: white; }
+.back { color: #ff7817; text-decoration: none; }
+
+.container { max-width: 900px; margin: auto; padding: 40px 20px; }
+
+h1 { font-size: 32px; margin-bottom: 10px; }
+h1 span { color: #ff6b00; }
+.lead { color: #999; margin-bottom: 25px; }
+
+select {
+    width: 100%;
+    max-width: 320px;
+    padding: 12px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+#statusMessage { color: #ff8a32; margin-bottom: 16px; }
+
+.box {
+    background: #151515;
+    border: 1px solid #292929;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+table { width: 100%; border-collapse: collapse; min-width: 420px; }
+th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid #292929; font-size: 14px; }
+th { color: #999; font-weight: normal; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+td.rank { width: 70px; color: #ff8a32; font-weight: bold; }
+td.pts { color: #ff8a32; font-weight: bold; }
+tr.top td { background: #1d130b; }
+
+.empty { text-align: center; color: #888; padding: 40px; }
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #292929;
+    color: #777;
+    font-size: 12px;
+}
+
+@media(max-width: 550px) {
+    h1 { font-size: 25px; }
+    header { padding: 18px 5%; }
+}
+</style>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="css/reactor-2.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">V1 <span>OFFICIALS</span></div>
+    <a href="dashboard.html" class="back">← Dashboard</a>
+</header>
+
+<main class="container">
+
+    <h1>LEADER<span>BOARD</span></h1>
+    <p class="lead">Overall points across all tournaments, or the results of one match.</p>
+
+    <select id="filter"></select>
+
+    <p id="statusMessage">Loading...</p>
+
+    <div class="box">
+        <table>
+            <thead id="head"></thead>
+            <tbody id="body"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer>© 2026 V1 OFFICIALS | All Rights Reserved.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+const db = window.supabaseClient;
+
+const filter = document.getElementById("filter");
+const head = document.getElementById("head");
+const body = document.getElementById("body");
+const statusMessage = document.getElementById("statusMessage");
+
+let results = [];
+let tournaments = [];
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
+}
+
+function emptyRow(cols, text) {
+    body.innerHTML = `<tr><td colspan="${cols}" class="empty">${text}</td></tr>`;
+}
+
+function render() {
+
+    const id = filter.value;
+
+    if (id === "all") {
+
+        head.innerHTML = "<tr><th>Rank</th><th>Player / Team</th><th>Matches</th><th>Points</th></tr>";
+
+        const totals = {};
+
+        results.forEach(r => {
+            if (!totals[r.player_id]) {
+                totals[r.player_id] = { name: r.name, points: 0, matches: 0 };
+            }
+            totals[r.player_id].name = r.name;
+            totals[r.player_id].points += r.points;
+            totals[r.player_id].matches += 1;
+        });
+
+        const rows = Object.values(totals).sort((a, b) => b.points - a.points);
+
+        if (rows.length === 0) {
+            emptyRow(4, "No results yet. Check back after the first match.");
+            return;
+        }
+
+        body.innerHTML = rows.map((r, i) => `
+            <tr class="${i < 3 ? "top" : ""}">
+                <td class="rank">#${i + 1}</td>
+                <td>${escapeHTML(r.name)}</td>
+                <td>${r.matches}</td>
+                <td class="pts">${r.points}</td>
+            </tr>`).join("");
+
+        return;
+    }
+
+    head.innerHTML = "<tr><th>Position</th><th>Player / Team</th><th>Points</th></tr>";
+
+    const rows = results
+        .filter(r => r.tournament_id === id)
+        .sort((a, b) => (a.position ?? 9999) - (b.position ?? 9999));
+
+    if (rows.length === 0) {
+        emptyRow(3, "Results for this tournament are not published yet.");
+        return;
+    }
+
+    body.innerHTML = rows.map(r => `
+        <tr class="${r.position && r.position <= 3 ? "top" : ""}">
+            <td class="rank">${r.position ? "#" + r.position : "-"}</td>
+            <td>${escapeHTML(r.name)}</td>
+            <td class="pts">${r.points}</td>
+        </tr>`).join("");
+}
+
+async function init() {
+
+    if (!db) {
+        statusMessage.innerText = "Supabase connection failed.";
+        return;
+    }
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error || !data.session) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    const [r, t] = await Promise.all([
+        db.from("tournament_results").select("*"),
+        db.from("tournaments").select("id, title").order("created_at", { ascending: false })
+    ]);
+
+    if (r.error || t.error) {
+        statusMessage.innerText = "Could not load results: " + (r.error || t.error).message;
+        return;
+    }
+
+    results = r.data || [];
+    tournaments = t.data || [];
+
+    filter.innerHTML = `<option value="all">Overall leaderboard</option>` +
+        tournaments.map(x =>
+            `<option value="${escapeHTML(x.id)}">${escapeHTML(x.title)}</option>`
+        ).join("");
+
+    statusMessage.innerText = "";
+    render();
+}
+
+filter.addEventListener("change", render);
+
+init();
+
+</script>
+
+</body>
+</html>

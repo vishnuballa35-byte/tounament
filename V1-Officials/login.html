@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login | V1 OFFICIALS</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 80% 20%, #401900, transparent 40%),
+      #090909;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 22px 8%;
+    background: #101010;
+    border-bottom: 1px solid #292929;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { font-size: 25px; font-weight: 900; letter-spacing: 2px; color: #ff6b00; }
+.logo span { color: white; }
+.home-link { color: #ff7b18; text-decoration: none; }
+
+.main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 45px 20px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 430px;
+    background: #141414;
+    padding: 38px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 10px 50px #000;
+}
+.login-box h1 { font-size: 30px; text-align: center; margin-bottom: 10px; }
+.login-box h1 span { color: #ff6b00; }
+
+.subtitle { text-align: center; color: #999; font-size: 14px; margin-bottom: 30px; }
+
+.tabs { display: flex; background: #222; border-radius: 6px; padding: 5px; margin-bottom: 28px; }
+.tabs button {
+    width: 50%;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.tabs button.active { background: #ff6b00; color: white; }
+
+.input-group { margin-bottom: 18px; }
+.input-group label { display: block; margin-bottom: 9px; font-size: 14px; color: #ddd; }
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    outline: none;
+    color: white;
+    font-size: 14px;
+}
+.input-group input:focus { border-color: #ff6b00; }
+
+.password-box { position: relative; }
+.password-box input { padding-right: 65px; }
+.show-btn {
+    position: absolute;
+    right: 12px;
+    top: 14px;
+    color: #ff8a32;
+    cursor: pointer;
+    font-size: 12px;
+    border: none;
+    background: transparent;
+}
+
+.options {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 12px;
+    margin: 10px 0 23px;
+}
+.options a { color: #ff7817; text-decoration: none; }
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #ff6b00;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.submit-btn:hover { background: #e65300; }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.message {
+    text-align: center;
+    font-size: 13px;
+    color: #ff8a32;
+    margin-top: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.message.success { color: #36d982; }
+.message.error { color: #ff5555; }
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-size: 12px;
+    border-top: 1px solid #292929;
+}
+
+@media(max-width: 480px) {
+    .login-box { padding: 25px 20px; }
+    header { padding: 18px 5%; }
+    .login-box h1 { font-size: 25px; }
+}
+</style>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="css/reactor-2.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">V1 <span>OFFICIALS</span></div>
+    <a href="index.html" class="home-link">← Home</a>
+</header>
+
+<main class="main">
+
+<div class="login-box">
+
+    <h1>WELCOME TO <span>V1</span></h1>
+
+    <p class="subtitle">Enter the battlefield. Become a champion.</p>
+
+    <div class="tabs">
+        <button type="button" id="loginTab" class="active" onclick="showLogin()">LOGIN</button>
+        <button type="button" id="signupTab" onclick="showSignup()">SIGN UP</button>
+    </div>
+
+    <form id="authForm">
+
+        <div class="input-group" id="usernameGroup" style="display:none;">
+            <label>Username</label>
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter your username"
+                minlength="3"
+                maxlength="30"
+                autocomplete="username"
+            >
+        </div>
+
+        <div class="input-group">
+            <label>Email Address</label>
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                required
+                autocomplete="email"
+            >
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <div class="password-box">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                    minlength="6"
+                    autocomplete="current-password"
+                >
+                <button type="button" class="show-btn" onclick="togglePassword()">SHOW</button>
+            </div>
+        </div>
+
+        <div class="options" id="loginOptions">
+            <a href="#" onclick="forgotPassword(event)">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">LOGIN</button>
+
+        <p class="message" id="message"></p>
+
+    </form>
+
+</div>
+
+</main>
+
+<footer>© 2026 V1 OFFICIALS | All Rights Reserved.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+const db = window.supabaseClient;
+
+let currentMode = "login";
+
+const form = document.getElementById("authForm");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+function showMessage(text, type = "") {
+    message.innerText = text;
+    message.className = "message";
+    if (type) message.classList.add(type);
+}
+
+function showLogin() {
+    currentMode = "login";
+    document.getElementById("usernameGroup").style.display = "none";
+    document.getElementById("loginOptions").style.display = "flex";
+    document.getElementById("loginTab").classList.add("active");
+    document.getElementById("signupTab").classList.remove("active");
+    document.getElementById("password").autocomplete = "current-password";
+    document.getElementById("username").required = false;
+    submitBtn.innerText = "LOGIN";
+    showMessage("");
+}
+
+function showSignup() {
+    currentMode = "signup";
+    document.getElementById("usernameGroup").style.display = "block";
+    document.getElementById("loginOptions").style.display = "none";
+    document.getElementById("loginTab").classList.remove("active");
+    document.getElementById("signupTab").classList.add("active");
+    document.getElementById("password").autocomplete = "new-password";
+    document.getElementById("username").required = true;
+    submitBtn.innerText = "CREATE ACCOUNT";
+    showMessage("");
+}
+
+function togglePassword() {
+    const password = document.getElementById("password");
+    const button = document.querySelector(".show-btn");
+
+    if (password.type === "password") {
+        password.type = "text";
+        button.innerText = "HIDE";
+    } else {
+        password.type = "password";
+        button.innerText = "SHOW";
+    }
+}
+
+async function forgotPassword(event) {
+
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+
+    if (!email) {
+        showMessage("Please enter your email address first.", "error");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    try {
+
+        submitBtn.disabled = true;
+        showMessage("Sending password reset email...");
+
+        const { error } = await db.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + "/login.html"
+        });
+
+        if (error) throw error;
+
+        showMessage("Password reset link sent! Check your email.", "success");
+
+    } catch (error) {
+
+        showMessage(error.message, "error");
+
+    } finally {
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = currentMode === "login" ? "LOGIN" : "CREATE ACCOUNT";
+    }
+}
+
+if (!db) {
+    showMessage("Supabase connection failed. Check supabase.js.", "error");
+    submitBtn.disabled = true;
+}
+
+form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!db) return;
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const username = document.getElementById("username").value.trim();
+
+    if (currentMode === "signup" && username.length < 3) {
+        showMessage("Username must contain at least 3 characters.", "error");
+        return;
+    }
+
+    if (password.length < 6) {
+        showMessage("Password must contain at least 6 characters.", "error");
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "PLEASE WAIT...";
+    showMessage("Connecting to V1 OFFICIALS...");
+
+    try {
+
+        if (currentMode === "signup") {
+
+            const { data, error } = await db.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { username: username },
+                    emailRedirectTo: window.location.origin + "/login.html"
+                }
+            });
+
+            if (error) throw error;
+
+            if (data.session) {
+                showMessage("Account created! Opening dashboard...", "success");
+                window.location.replace("dashboard.html");
+                return;
+            }
+
+            showMessage(
+                "Account created! Please verify your email before logging in.",
+                "success"
+            );
+
+        } else {
+
+            const { data, error } = await db.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) throw error;
+
+            if (!data.session) {
+                throw new Error("Login session was not created. Please try again.");
+            }
+
+            showMessage("Login successful! Opening V1 OFFICIALS dashboard...", "success");
+            window.location.replace("dashboard.html");
+            return;
+        }
+
+    } catch (error) {
+
+        showMessage(error.message, "error");
+
+    } finally {
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = currentMode === "login" ? "LOGIN" : "CREATE ACCOUNT";
+    }
+});
+
+async function checkSession() {
+
+    if (!db) return;
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error) {
+        console.error("Session error:", error.message);
+        return;
+    }
+
+    if (data.session) {
+        window.location.replace("dashboard.html");
+    }
+}
+
+checkSession();
+
+</script>
+
+</body>
+</html>
