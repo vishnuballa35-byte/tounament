@@ -508,11 +508,19 @@ async function loadTournaments(keepMessage) {
 
     tournaments.forEach(tournament => {
 
-        const registration = myRegistrations.find(
-            r => r.tournament_id === tournament.id
-        );
+        // CHANGE 2: if several rows exist for this tournament, pick the most relevant one
+        const rank = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+        const registration = myRegistrations
+            .filter(r => r.tournament_id === tournament.id)
+            .sort((a, b) =>
+                (rank[String(b.registration_status).toUpperCase()] || 0) -
+                (rank[String(a.registration_status).toUpperCase()] || 0)
+            )[0];
 
-        const regStatus = registration ? registration.registration_status : null;
+        // CHANGE 1: normalize status so "Rejected" / "rejected" also match
+        const regStatus = registration
+            ? String(registration.registration_status || "").trim().toUpperCase()
+            : null;
 
         const maxSlots = Number(tournament.max_slots) || 0;
         const filled = Number(slotCounts[tournament.id] || 0);
@@ -522,8 +530,12 @@ async function loadTournaments(keepMessage) {
         let buttonText = "REGISTER NOW";
         let disabled = false;
 
+        // CHANGE 3: REJECTED is checked early and the button is disabled
         if (regStatus === "APPROVED") {
             buttonText = "APPROVED";
+            disabled = true;
+        } else if (regStatus === "REJECTED") {
+            buttonText = "REJECTED";
             disabled = true;
         } else if (tournament.status !== "OPEN") {
             buttonText = regStatus || tournament.status;
@@ -533,8 +545,6 @@ async function loadTournaments(keepMessage) {
             disabled = true;
         } else if (regStatus === "PENDING") {
             buttonText = "COMPLETE PAYMENT";
-        } else if (regStatus === "REJECTED") {
-            buttonText = "REGISTER AGAIN";
         }
 
         const card = document.createElement("article");
